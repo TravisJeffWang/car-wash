@@ -118,7 +118,6 @@
             background: #0088ff;
         }
 
-
        .car-num-box.last {
     border-color: #34b950 !important;
     position: relative;
@@ -128,12 +127,12 @@
 .car-num-box.last::after {
     content: "新能源";
     position: absolute;
-    right: 4px;
-    bottom: 2px;
-    font-size: 9px;
+    right: 2px;
+    bottom: 1px;
+    font-size: 8px;
     color: #34b950;
     white-space: nowrap;
-    z-index: 2; /* 比下划线层级更高，不会被盖住 */
+    z-index: 2;
     pointer-events: none;
 }
 /* 最后一格的下划线：缩短长度，避免盖住文字 */
@@ -142,12 +141,11 @@
     position: absolute;
     bottom: 8px;
     left: 20%;
-    right: 20%; /* 改成左右各留20%，不会碰到右下角文字 */
+    right: 20%;
     height: 2px;
     background: #0088ff;
-    z-index: 1; /* 比文字低一层 */
+    z-index: 1;
 }
-
 
         /* 自定义键盘（捷停车样式） */
        .custom-keyboard {
@@ -156,7 +154,6 @@
     left: 0;
     right: 0;
     background: #eaeaea;
-    /* 兼容底部安全区，避免被系统栏遮挡 */
     padding: 12px 8px calc(12px + env(safe-area-inset-bottom));
     display: none;
     z-index: 999;
@@ -164,25 +161,24 @@
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* 限制最大高度，防止超出屏幕 */
     max-height: 50vh;
     overflow-y: auto;
 }
         .keyboard-row {
     display: flex;
-    gap: 6px; /* 从8px缩小到6px */
-    margin-bottom: 6px; /* 从8px缩小到6px */
+    gap: 6px;
+    margin-bottom: 6px;
     justify-content: center;
     -webkit-flex-wrap: nowrap;
     flex-wrap: nowrap;
 }
        .keyboard-key {
-    width: 32px; /* 从36px缩小到32px */
-    height: 44px; /* 从48px缩小到44px */
+    width: 32px;
+    height: 44px;
     background: white !important;
     border: 1px solid #e0e0e0 !important;
     border-radius: 6px;
-    font-size: 15px; /* 从17px缩小到15px */
+    font-size: 15px;
     font-weight: 500;
     color: #333 !important;
     display: flex;
@@ -220,7 +216,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>洗车预约11</h2>
+        <h2>洗车预约</h2>
         <form id="reserveForm">
             <div class="form-item">
                 <label for="reserveDateTime">预约时间</label>
@@ -433,6 +429,26 @@
             return selectedTime > currentTime - twoMinutes;
         }
 
+        function checkDateTimeSelection() {
+            const now = Date.now();
+            if (now - lastCheckTime < 300) return;
+            lastCheckTime = now;
+            const selectedValue = datetimeInput.value;
+            if (!selectedValue) {
+                clearErrorTip();
+                return;
+            }
+            if (!isDateTimeValid(selectedValue)) {
+                setTimeout(() => {
+                    showErrorTip(`请选择当前时间之后的预约时间！`);
+                    datetimeInput.value = '';
+                    updateDateTimePlaceholder();
+                }, 100);
+            } else {
+                clearErrorTip();
+            }
+        }
+
         function initCarNumInput() {
             const boxes = carNumInput.querySelectorAll('.car-num-box');
             boxes.forEach((box, index) => {
@@ -453,41 +469,35 @@
             currentFocusIndex = index;
         }
 
-       
-       // 修正键盘显示逻辑，确保第1位时一定显示省份键盘
-function showKeyboard() {
-    customKeyboard.style.display = 'none';
-    setTimeout(() => {
-        customKeyboard.style.display = 'block';
-        if (currentFocusIndex === 0) {
-            // 第1位：只显示省份键盘
-            provinceKeys.style.display = 'flex';
-            provinceKeys.nextElementSibling.style.display = 'flex';
-            provinceKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
-            provinceKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'flex';
-            // 隐藏字母数字键盘
-            letterNumKeys.style.display = 'none';
-            letterNumKeys.nextElementSibling.style.display = 'none';
-            letterNumKeys.nextElementSibling.nextElementSibling.style.display = 'none';
-            letterNumKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'none';
-        } else {
-            // 第2-8位：只显示字母数字键盘
-            provinceKeys.style.display = 'none';
-            provinceKeys.nextElementSibling.style.display = 'none';
-            provinceKeys.nextElementSibling.nextElementSibling.style.display = 'none';
-            provinceKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'none';
-            letterNumKeys.style.display = 'flex';
-            letterNumKeys.nextElementSibling.style.display = 'flex';
-            letterNumKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
-            letterNumKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'flex';
+        function showKeyboard() {
+            const isProvinceMode = currentFocusIndex === 0;
+            const currentProvinceDisplay = provinceKeys.style.display;
+            
+            if (isProvinceMode && currentProvinceDisplay === 'flex') return;
+            if (!isProvinceMode && currentProvinceDisplay === 'none') return;
+
+            if (isProvinceMode) {
+                provinceKeys.style.display = 'flex';
+                provinceKeys.nextElementSibling.style.display = 'flex';
+                provinceKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
+                provinceKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'flex';
+                letterNumKeys.style.display = 'none';
+                letterNumKeys.nextElementSibling.style.display = 'none';
+                letterNumKeys.nextElementSibling.nextElementSibling.style.display = 'none';
+                letterNumKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'none';
+            } else {
+                provinceKeys.style.display = 'none';
+                provinceKeys.nextElementSibling.style.display = 'none';
+                provinceKeys.nextElementSibling.nextElementSibling.style.display = 'none';
+                provinceKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'none';
+                letterNumKeys.style.display = 'flex';
+                letterNumKeys.nextElementSibling.style.display = 'flex';
+                letterNumKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
+                letterNumKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'flex';
+            }
+            customKeyboard.style.display = 'block';
+            customKeyboard.offsetHeight;
         }
-        // 强制触发iOS重绘
-        customKeyboard.offsetHeight;
-    }, 10);
-}
-
-
-
 
         function hideKeyboard() {
             customKeyboard.style.display = 'none';
@@ -501,29 +511,27 @@ function showKeyboard() {
                 currentFocusIndex++;
                 setFocus(currentFocusIndex);
                 showKeyboard();
+            } else {
+                hideKeyboard();
             }
             document.getElementById('carNum').value = carNumValue.join('');
         }
 
         function deleteLastChar() {
-    // 如果当前在第1位且为空，不做处理
-    if (currentFocusIndex === 0 && carNumValue[0] === '') return;
-    
-    // 从当前位置往前找最后一个有值的位置
-    let lastIndex = currentFocusIndex;
-    while (lastIndex >= 0 && carNumValue[lastIndex] === '') {
-        lastIndex--;
-    }
-    if (lastIndex < 0) lastIndex = 0;
-    
-    carNumValue[lastIndex] = '';
-    currentFocusIndex = lastIndex;
-    updateCarNumDisplay();
-    setFocus(currentFocusIndex);
-    // 强制显示对应键盘，不会消失
-    showKeyboard();
-    document.getElementById('carNum').value = carNumValue.join('');
-}
+            if (currentFocusIndex === 0 && carNumValue[0] === '') return;
+            let lastIndex = currentFocusIndex;
+            while (lastIndex >= 0 && carNumValue[lastIndex] === '') {
+                lastIndex--;
+            }
+            if (lastIndex < 0) lastIndex = 0;
+            carNumValue[lastIndex] = '';
+            currentFocusIndex = lastIndex;
+            updateCarNumDisplay();
+            setFocus(currentFocusIndex);
+            showKeyboard();
+            document.getElementById('carNum').value = carNumValue.join('');
+        }
+
         function updateCarNumDisplay() {
             const boxes = carNumInput.querySelectorAll('.car-num-box');
             boxes.forEach((box, index) => {
@@ -573,26 +581,6 @@ function showKeyboard() {
         function updateDateTimePlaceholder() {
             const placeholder = document.getElementById('datetimePlaceholder');
             placeholder.style.opacity = datetimeInput.value ? '0' : '1';
-        }
-
-        function checkDateTimeSelection() {
-            const now = Date.now();
-            if (now - lastCheckTime < 300) return;
-            lastCheckTime = now;
-            const selectedValue = datetimeInput.value;
-            if (!selectedValue) {
-                clearErrorTip();
-                return;
-            }
-            if (!isDateTimeValid(selectedValue)) {
-                showErrorTip(`请选择当前时间之后的预约时间！`);
-                setTimeout(() => {
-                    datetimeInput.value = '';
-                    updateDateTimePlaceholder();
-                }, 100);
-            } else {
-                clearErrorTip();
-            }
         }
 
         document.getElementById('reserveForm').addEventListener('submit', async (e) => {
@@ -667,6 +655,12 @@ function showKeyboard() {
             document.querySelectorAll('#name, #phone, #carType').forEach(input => {
                 input.addEventListener('input', clearErrorTip);
                 input.addEventListener('change', clearErrorTip);
+            });
+            // 点击空白处隐藏键盘
+            document.addEventListener('click', (e) => {
+                if (!carNumInput.contains(e.target) && !customKeyboard.contains(e.target)) {
+                    hideKeyboard();
+                }
             });
             setTimeout(() => tip.style.display = 'none', 100);
         };
