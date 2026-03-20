@@ -150,46 +150,50 @@
 
 
         /* 自定义键盘（捷停车样式） */
-        .custom-keyboard {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #eaeaea;
-            padding: 12px 8px;
-            display: none;
-            z-index: 999;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
+       .custom-keyboard {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #eaeaea;
+    /* 兼容底部安全区，避免被系统栏遮挡 */
+    padding: 12px 8px calc(12px + env(safe-area-inset-bottom));
+    display: none;
+    z-index: 999;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* 限制最大高度，防止超出屏幕 */
+    max-height: 50vh;
+    overflow-y: auto;
+}
         .keyboard-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            justify-content: center;
-            -webkit-flex-wrap: nowrap;
-            flex-wrap: nowrap;
-        }
-        .keyboard-key {
-            width: 36px;
-            height: 48px;
-            background: white !important;
-            border: 1px solid #e0e0e0 !important;
-            border-radius: 6px;
-            font-size: 17px;
-            font-weight: 500;
-            color: #333 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            -webkit-appearance: none;
-            appearance: none;
-        }
+    display: flex;
+    gap: 6px; /* 从8px缩小到6px */
+    margin-bottom: 6px; /* 从8px缩小到6px */
+    justify-content: center;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+       .keyboard-key {
+    width: 32px; /* 从36px缩小到32px */
+    height: 44px; /* 从48px缩小到44px */
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px;
+    font-size: 15px; /* 从17px缩小到15px */
+    font-weight: 500;
+    color: #333 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    -webkit-appearance: none;
+    appearance: none;
+}
         .keyboard-key.wide {
-            width: 52px;
+            width: 46px;
         }
         .keyboard-key.delete {
             background: #d0d0d0 !important;
