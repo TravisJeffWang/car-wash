@@ -469,14 +469,10 @@
             currentFocusIndex = index;
         }
 
+        // 彻底修复键盘不显示问题：去掉重复显示判断
         function showKeyboard() {
-            const isProvinceMode = currentFocusIndex === 0;
-            const currentProvinceDisplay = provinceKeys.style.display;
-            
-            if (isProvinceMode && currentProvinceDisplay === 'flex') return;
-            if (!isProvinceMode && currentProvinceDisplay === 'none') return;
-
-            if (isProvinceMode) {
+            customKeyboard.style.display = 'block';
+            if (currentFocusIndex === 0) {
                 provinceKeys.style.display = 'flex';
                 provinceKeys.nextElementSibling.style.display = 'flex';
                 provinceKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
@@ -495,7 +491,6 @@
                 letterNumKeys.nextElementSibling.nextElementSibling.style.display = 'flex';
                 letterNumKeys.nextElementSibling.nextElementSibling.nextElementSibling.style.display = 'flex';
             }
-            customKeyboard.style.display = 'block';
             customKeyboard.offsetHeight;
         }
 
@@ -512,6 +507,7 @@
                 setFocus(currentFocusIndex);
                 showKeyboard();
             } else {
+                // 输完最后一位自动收起
                 hideKeyboard();
             }
             document.getElementById('carNum').value = carNumValue.join('');
@@ -656,12 +652,14 @@
                 input.addEventListener('input', clearErrorTip);
                 input.addEventListener('change', clearErrorTip);
             });
-            // 点击空白处隐藏键盘
+
+            // 点击外部关闭键盘
             document.addEventListener('click', (e) => {
                 if (!carNumInput.contains(e.target) && !customKeyboard.contains(e.target)) {
                     hideKeyboard();
                 }
             });
+
             setTimeout(() => tip.style.display = 'none', 100);
         };
     </script>
